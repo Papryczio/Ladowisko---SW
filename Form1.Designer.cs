@@ -60,9 +60,12 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.picture_post_sur = new System.Windows.Forms.PictureBox();
+            this.listView3 = new System.Windows.Forms.ListView();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.picture_sur = new System.Windows.Forms.PictureBox();
+            this.label9 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori_det)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_post_det)).BeginInit();
@@ -72,6 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_param1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_blockSize)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picture_post_sur)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_sur)).BeginInit();
             this.SuspendLayout();
             // 
@@ -316,11 +320,6 @@
             // numericUpDown_param1
             // 
             this.numericUpDown_param1.Location = new System.Drawing.Point(75, 51);
-            this.numericUpDown_param1.Maximum = new decimal(new int[] {
-            15,
-            0,
-            0,
-            0});
             this.numericUpDown_param1.Name = "numericUpDown_param1";
             this.numericUpDown_param1.Size = new System.Drawing.Size(120, 20);
             this.numericUpDown_param1.TabIndex = 77;
@@ -339,7 +338,7 @@
             0});
             this.numericUpDown_blockSize.Location = new System.Drawing.Point(75, 22);
             this.numericUpDown_blockSize.Maximum = new decimal(new int[] {
-            99,
+            501,
             0,
             0,
             0});
@@ -396,6 +395,10 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.picture_post_sur);
+            this.panel1.Controls.Add(this.listView3);
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.picture_sur);
@@ -418,10 +421,31 @@
             this.panel1.Controls.Add(this.groupBox3);
             this.panel1.Controls.Add(this.listView_pos);
             this.panel1.Controls.Add(this.button_cameraMovie);
-            this.panel1.Location = new System.Drawing.Point(15, 12);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1877, 1059);
+            this.panel1.Size = new System.Drawing.Size(1904, 981);
             this.panel1.TabIndex = 87;
+            // 
+            // picture_post_sur
+            // 
+            this.picture_post_sur.BackColor = System.Drawing.Color.Black;
+            this.picture_post_sur.Location = new System.Drawing.Point(900, 956);
+            this.picture_post_sur.Name = "picture_post_sur";
+            this.picture_post_sur.Size = new System.Drawing.Size(640, 360);
+            this.picture_post_sur.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picture_post_sur.TabIndex = 91;
+            this.picture_post_sur.TabStop = false;
+            // 
+            // listView3
+            // 
+            this.listView3.HideSelection = false;
+            this.listView3.Location = new System.Drawing.Point(670, 1275);
+            this.listView3.Name = "listView3";
+            this.listView3.Size = new System.Drawing.Size(215, 97);
+            this.listView3.TabIndex = 90;
+            this.listView3.UseCompatibleStateImageBehavior = false;
+            this.listView3.View = System.Windows.Forms.View.List;
             // 
             // label6
             // 
@@ -451,11 +475,20 @@
             this.picture_sur.TabIndex = 86;
             this.picture_sur.TabStop = false;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(897, 940);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(295, 13);
+            this.label9.TabIndex = 92;
+            this.label9.Text = "Wycinek obrazu dookoła objektu po binaryzacji adaptacyjnej";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1904, 1061);
+            this.ClientSize = new System.Drawing.Size(1904, 981);
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Projekt - Lądowisko";
@@ -470,6 +503,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_blockSize)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picture_post_sur)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_sur)).EndInit();
             this.ResumeLayout(false);
 
@@ -511,6 +545,9 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.PictureBox picture_sur;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ListView listView3;
+        private System.Windows.Forms.PictureBox picture_post_sur;
+        private System.Windows.Forms.Label label9;
     }
 }
 

@@ -10,7 +10,7 @@ namespace Ladowisko
     public partial class Form1 : Form
     {
         Size desired_image_size;
-        Image<Bgr, byte> image_PB1, image_temp2;
+        Image<Bgr, byte> image_post, image_PB1, image_temp2;
         Image<Gray, byte> image_temp1;
         VideoCapture camera;
         VectorOfVectorOfPoint rectContour = new VectorOfVectorOfPoint();
@@ -19,8 +19,10 @@ namespace Ladowisko
         bool delay;
         int delay_counter;
         int prev_x, prev_y;
+        int prev_min_x, prev_min_y, prev_max_x, prev_max_y;
         int maxidx;
-
+        double tolerance;
+        byte[,,] prev_surr;
 
         public Form1()
         {
@@ -29,13 +31,20 @@ namespace Ladowisko
             image_PB1 = new Image<Bgr, byte>(desired_image_size);
             image_temp1 = new Image<Gray, byte>(desired_image_size);
             image_temp2 = new Image<Bgr, byte>(desired_image_size);
+            image_post = new Image<Bgr, byte>(desired_image_size);
             timer1.Enabled = false;
             delay = true;
             delay_counter = 0;
             prev_x = -1;
             prev_y = -1;
+            prev_min_x = -1;
+            prev_min_y = -1;
+            prev_max_x = -1;
+            prev_max_y = -1;
             maxidx = -1;
-
+            //---
+            tolerance = 0.1;
+            //---
             try
             {
                 camera = new VideoCapture();
@@ -146,10 +155,13 @@ namespace Ladowisko
         {
             // zmienne pomocnicze
             int matches = 0;
+            bool match = false;
             int x;
             int y;
             double area_max = 0;
+            double perimeter_max = 0;
             double area_temporary = 0;
+            double perimeter_temp = 0;
             bool newmax = false;
 
             //odnajdywanie konturów przy użyciu RetrType.Tree - kontur wewnątrz konturu przypisywany jako kolejna liczba całkowita
@@ -172,9 +184,10 @@ namespace Ladowisko
                     //jeżeli nie ma dopasowań sprawdzamy, czy kontur jest czworobokiem, czy jego pole jest wieksze od 200 pixeli, oraz czy na na obrazie nie znalezliśmy już większego
                     //obiektu, który spełnił wszystkie warunki.
                     case 0:
-                        if (approx.Size == 4 && area > 200 && area > area_max)
+                        if (approx.Size == 4 && area > 2500 && area > area_max && perimeter > 180)
                         {
                             area_temporary = area;
+                            perimeter_temp = perimeter;
                             matches++;
                             newmax = true;
                         }
@@ -211,15 +224,17 @@ namespace Ladowisko
                             newmax = false;
                         }
                         break;
-                    //dla czterech dopasowań sprawdzamy, czy kontur ma więcej niż 4 puntky - może być to przybliżony X.
+                    //dla czterech dopasowań sprawdzamy, czy kontur ma więcej niż 7 puntków - może być to przybliżony X.
                     case 4:
-                        if (approx.Size > 4 && newmax == true)
+                        if (approx.Size > 7 && newmax == true)
                         {
                             maxidx = i;
                             area_max = area_temporary;
+                            perimeter_max = perimeter_temp;
                             newmax = false;
                             delay_counter = 0;
                             rectContour_max = rectContour[i - 4];
+                            match = true;
                         }
                         else
                         {
@@ -235,16 +250,80 @@ namespace Ladowisko
             //sprawdzamy czy możemy dla naszego obiektu wyliczyć momenty (jeżeli będzie exception - znaczy to, że nie znaleziono żadnego obiektu)
             try
             {
-                var moments = CvInvoke.Moments(rectContour[maxidx - 2]);
-                x = (int)(moments.M10 / moments.M00);
-                y = (int)(moments.M01 / moments.M00);
-                prev_x = (int)(moments.M10 / moments.M00);
-                prev_y = (int)(moments.M01 / moments.M00);
-                CvInvoke.DrawContours(image_temp1_bgr, rectContour_max, 0, new MCvScalar(0, 0, 255));
-                CvInvoke.DrawContours(image_temp2, rectContour_max, 0, new MCvScalar(0, 0, 255));
-                CvInvoke.Circle(image_temp1_bgr, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
-                CvInvoke.Circle(image_temp2, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
-                listView_pos.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - x) + ", " + ((int)desired_image_size.Height / 2 - y) + "\n");
+                if (match == true)
+                {
+                    //obliczenie momentów
+                    var moments = CvInvoke.Moments(rectContour[maxidx - 2]);
+                    //środek ciężkości
+                    prev_x = x = (int)(moments.M10 / moments.M00);
+                    prev_y = y = (int)(moments.M01 / moments.M00);
+                    //prev_x = (int)(moments.M10 / moments.M00);
+                    //prev_y = (int)(moments.M01 / moments.M00);
+                    //rysowanie konturu dla 2 pictureboxów
+                    CvInvoke.DrawContours(image_temp1_bgr, rectContour, maxidx - 4, new MCvScalar(0, 0, 255));
+                    CvInvoke.DrawContours(image_temp2, rectContour, maxidx - 4, new MCvScalar(0, 0, 255));
+                    //rysowanie środka ciężkości dla 2 pictureboxów
+                    CvInvoke.Circle(image_temp1_bgr, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
+                    CvInvoke.Circle(image_temp2, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
+                    //dodawanie informacji o położeniu na listę
+                    listView_pos.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - x) + ", " + ((int)desired_image_size.Height / 2 - y) + "\n");
+
+                    //ZOOM NA OTOCZENIE LĄDOWISKA
+                    byte[,,] temp_bgr = image_PB1.Data;
+
+                    int max_y = -1, max_x = -1;
+                    int min_y = 2000, min_x = 2000;
+
+                    //poszukiwanie minimalnych i maksymalnych wartości współrzędnych x i y
+                    for (int i = 0; i < rectContour[maxidx - 4].Size; i++)
+                    {
+                        if (rectContour[maxidx - 4][i].X < min_x) min_x = rectContour[maxidx - 4][i].X;
+                        if (rectContour[maxidx - 4][i].X > max_x) max_x = rectContour[maxidx - 4][i].X;
+                        if (rectContour[maxidx - 4][i].Y < min_y) min_y = rectContour[maxidx - 4][i].Y;
+                        if (rectContour[maxidx - 4][i].Y > max_y) max_y = rectContour[maxidx - 4][i].Y;
+                    }
+                    // rozszerzenie ich o współczynnik oparty na obwodzie pomnożonym przez zmienną
+                    prev_min_x = min_x = min_x - (int)(tolerance * perimeter_max);
+                    prev_min_y = min_y = min_y - (int)(tolerance * perimeter_max);
+                    prev_max_x = max_x = max_x + (int)(tolerance * perimeter_max);
+                    prev_max_y = max_y = max_y + (int)(tolerance * perimeter_max);
+
+                    // uwzględnienie rozmiaru obrazu
+                    if (min_x - tolerance * perimeter_max < 0) min_x = 0;
+                    if (max_x + tolerance * perimeter_max > desired_image_size.Width) max_x = desired_image_size.Width;
+                    if (min_y - tolerance * perimeter_max < 0) min_y = 0;
+                    if (max_y + tolerance * perimeter_max > desired_image_size.Height) max_y = desired_image_size.Height;
+
+                    //----------------------------
+                    Image<Bgr, byte> image_sur = new Image<Bgr, byte>(max_x - min_x, max_y - min_y);
+                    Image<Bgr, byte> image_post_sur = new Image<Bgr, byte>(max_x - min_x, max_y - min_y);
+                    byte[,,] surr = image_sur.Data;
+                    int loop_increment_x = 0;
+                    int loop_increment_y;
+                    //----------------------------
+
+                    //przepisywanie bitów z obrazu do nowych tablic.
+                    for (int x_loop = min_x; x_loop < max_x; x_loop++)
+                    {
+                        loop_increment_y = 0;
+                        for (int y_loop = min_y; y_loop < max_y; y_loop++)
+                        {
+                            //Console.WriteLine("x " + loop_increment_x + " y " + loop_increment_y);
+                            surr[loop_increment_y, loop_increment_x, 0] = temp_bgr[y_loop, x_loop, 0];
+                            surr[loop_increment_y, loop_increment_x, 1] = temp_bgr[y_loop, x_loop, 1];
+                            surr[loop_increment_y, loop_increment_x, 2] = temp_bgr[y_loop, x_loop, 2];
+                            loop_increment_y++;
+                        }
+                        loop_increment_x++;
+                    }
+                    //wyświetlenie
+                    image_sur.Data = surr;
+                    picture_sur.Image = image_sur.Bitmap;
+                }
+                else
+                {
+                    throw new Exception("No match found");
+                }
             }
             //w przypadku gdy nie znaleziono obiektu, sprawdzamy czy w ciągu ostatnich 3 klatek obrazu ten obiekt był wykryty - jeżeli tak to podajemy jego współrzędne.
             catch (Exception ex)
@@ -259,7 +338,7 @@ namespace Ladowisko
                             CvInvoke.DrawContours(image_temp2, rectContour, maxidx - 4, new MCvScalar(0, 0, 255));
                             CvInvoke.Circle(image_temp1_bgr, new Point(prev_x, prev_y), 2, new MCvScalar(0, 255, 255), 2);
                             CvInvoke.Circle(image_temp2, new Point(prev_x, prev_y), 2, new MCvScalar(0, 255, 255), 2);
-                            listView_pos.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - prev_x) + ", " + ((int)desired_image_size.Height / 2 - prev_y) + "\n");
+                            listView_pos.Items.Add("Pozycja względem środka obrazu (delay = " + delay_counter + ") = " + ((int)desired_image_size.Width / 2 - prev_x) + ", " + ((int)desired_image_size.Height / 2 - prev_y) + "\n");
                         }
                         catch (Exception ex2)
                         {
@@ -269,12 +348,60 @@ namespace Ladowisko
                     }
                     delay_counter++;
                 }
-                //jeżeli tego obiektu nie było w ciągu ostatnich 3 klatek - wyświetlamy informację o braku wzorca na obrazie.
+                //jeżeli tego obiektu nie było w ciągu ostatnich 3 klatek - poszukujemy części wzorca przy krawędziach obrazu
                 else
                 {
-                    CvInvoke.PutText(image_temp1_bgr, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
-                    CvInvoke.PutText(image_temp2, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
-                    listView_pos.Items.Add("Brak wzorca");
+                    if (prev_min_x != -1 && prev_min_y != -1 && prev_max_x != -1 && prev_max_y != -1)
+                    {
+                        if (prev_min_x <= 2 * tolerance * perimeter_max) prev_min_x = 0;
+                        if (prev_min_y <= 2 * tolerance * perimeter_max) prev_min_y = 0;
+                        if (prev_max_x >= (desired_image_size.Width - 2 * tolerance * perimeter_max)) prev_max_x = desired_image_size.Width;
+                        if (prev_max_y >= (desired_image_size.Height - 2 * tolerance * perimeter_max)) prev_max_y = desired_image_size.Height;
+
+                        //----------------------------
+                        Image<Bgr, byte> image_sur = new Image<Bgr, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
+                        Image<Bgr, byte> image_post_sur = new Image<Bgr, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
+                        byte[,,] surr = image_sur.Data;
+                        byte[,,] post_surr = image_post_sur.Data;
+                        int loop_increment_x = 0;
+                        int loop_increment_y;
+                        byte[,,] temp_post = image_post.Data;
+                        byte[,,] temp_bgr = image_PB1.Data;
+                        //----------------------------
+
+                        //przepisywanie bitów z obrazu do nowych tablic.
+                        for (int x_loop = prev_min_x; x_loop < prev_max_x; x_loop++)
+                        {
+                            loop_increment_y = 0;
+                            for (int y_loop = prev_min_y; y_loop < prev_max_y; y_loop++)
+                            {
+                                //Console.WriteLine("x " + loop_increment_x + " y " + loop_increment_y);
+                                surr[loop_increment_y, loop_increment_x, 0] = temp_bgr[y_loop, x_loop, 0];
+                                surr[loop_increment_y, loop_increment_x, 1] = temp_bgr[y_loop, x_loop, 1];
+                                surr[loop_increment_y, loop_increment_x, 2] = temp_bgr[y_loop, x_loop, 2];
+                                post_surr[loop_increment_y, loop_increment_x, 0] = temp_post[y_loop, x_loop, 0];
+                                post_surr[loop_increment_y, loop_increment_x, 1] = temp_post[y_loop, x_loop, 1];
+                                post_surr[loop_increment_y, loop_increment_x, 2] = temp_post[y_loop, x_loop, 2];
+                                loop_increment_y++;
+                            }
+                            loop_increment_x++;
+                        }
+                        //wyświetlenie
+
+                        image_sur.Data = surr;
+                        image_post_sur.Data = post_surr;
+                        picture_sur.Image = image_sur.Bitmap;
+                        picture_post_sur.Image = image_post_sur.Bitmap;
+                        prev_surr = surr;
+                    }
+                    // jeżeli nie ma części wzorca przy krawędziach ekranu -  wyświetlamy informację o braku wzorca na obrazie.
+                    else
+                    {
+
+                        CvInvoke.PutText(image_temp1_bgr, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                        CvInvoke.PutText(image_temp2, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                        listView_pos.Items.Add("Brak wzorca");
+                    }
                 }
             }
 
@@ -328,6 +455,7 @@ namespace Ladowisko
                 }
             }
             image_temp1.Data = temp2;
+            image_temp1.CopyTo(image_post);
             picture_post.Image = image_temp1.Bitmap;
         }
 
@@ -429,6 +557,11 @@ namespace Ladowisko
         private void button_lowPass_Click(object sender, EventArgs e)
         {
             lowPassFilter();
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void button_highPass_Click(object sender, EventArgs e)
