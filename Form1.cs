@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-using Emgu.CV;
+﻿using Emgu.CV;
 using Emgu.CV.Structure;
-using System.IO;
-using System.Threading;
 using Emgu.CV.Util;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Ladowisko
 {
@@ -102,6 +93,8 @@ namespace Ladowisko
 
         #endregion
 
+        #region camera_timer
+
         bool movie = false;
 
         private void Timer1_Tick_1(object sender, EventArgs e)
@@ -123,26 +116,28 @@ namespace Ladowisko
             }
         }
 
+        #endregion
+
         #region program
 
         private void Kolorki()
         {
             // czyszczenie list
-                ListView_Data.Clear();
-                listView2.Clear();
+            ListView_Data.Clear();
+            listView2.Clear();
             //zmienne pomocnicze
-                int blockSize = (int)numericUpDown1.Value;
-                int param1 = (int)numericUpDown2.Value;
+            int blockSize = (int)numericUpDown1.Value;
+            int param1 = (int)numericUpDown2.Value;
             //kopiowanie image_PB1 do image_temp2
-                image_PB1.CopyTo(image_temp2);
+            image_PB1.CopyTo(image_temp2);
             //konwersja z BGR na Gray
-                image_temp1 = image_PB1.Convert<Gray, byte>();
-                pictureBox5.Image = image_temp1.Bitmap;
+            image_temp1 = image_PB1.Convert<Gray, byte>();
+            pictureBox5.Image = image_temp1.Bitmap;
             //progowanie adaptacyjne
-                CvInvoke.AdaptiveThreshold(image_temp1, image_temp1, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
-                pictureBox5.Image = image_temp1.Bitmap;
+            CvInvoke.AdaptiveThreshold(image_temp1, image_temp1, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
+            pictureBox5.Image = image_temp1.Bitmap;
             //odwrocenie kolorow
-                image_temp1._Not();
+            image_temp1._Not();
             pictureBox5.Image = image_temp1.Bitmap;
             pictureBox4.Image = image_temp2.Bitmap;
         }
@@ -237,9 +232,8 @@ namespace Ladowisko
                         }
                         break;
                 }
-                listView1.Clear();
-                listView1.Items.Add("Area = " + area);
             }
+            listView1.Clear();
             listView1.Items.Add("Area_max = " + area_max + "\n");
 
             //sprawdzamy czy możemy dla naszego obiektu wyliczyć momenty (jeżeli będzie exception - znaczy to, że nie znaleziono żadnego obiektu)
@@ -293,6 +287,7 @@ namespace Ladowisko
         }
         #endregion
 
+        #region filtry
         private void highPassFilter()
         {
             double[] wsp = new double[] { -1, -1, -1,
@@ -387,6 +382,8 @@ namespace Ladowisko
             pictureBox5.Image = image_temp1.Bitmap;
         }
 
+        #endregion
+
         #region events
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -423,7 +420,7 @@ namespace Ladowisko
         }
 
 
-        
+
         private void button3_Click(object sender, EventArgs e)
         {
             movie = !movie;
