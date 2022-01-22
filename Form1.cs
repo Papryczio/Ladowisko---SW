@@ -25,7 +25,7 @@ namespace Ladowisko
         public Form1()
         {
             InitializeComponent();
-            desired_image_size = pictureBox1.Size;
+            desired_image_size = picture_ori.Size;
             image_PB1 = new Image<Bgr, byte>(desired_image_size);
             image_temp1 = new Image<Gray, byte>(desired_image_size);
             image_temp2 = new Image<Bgr, byte>(desired_image_size);
@@ -70,7 +70,7 @@ namespace Ladowisko
 
         private void button_From_File_PB1_Click(object sender, EventArgs e)
         {
-            pictureBox1.Image = get_image_bitmap_from_file(textBox_Image_Path_PB1.Text, ref image_PB1);
+            picture_ori.Image = get_image_bitmap_from_file(textBox_Image_Path_PB1.Text, ref image_PB1);
         }
 
 
@@ -100,12 +100,12 @@ namespace Ladowisko
         private void Timer1_Tick_1(object sender, EventArgs e)
         {
             Mat temp = camera.QueryFrame();
-            CvInvoke.Resize(temp, temp, pictureBox1.Size);
+            CvInvoke.Resize(temp, temp, picture_ori.Size);
             image_PB1 = temp.ToImage<Bgr, byte>();
-            pictureBox1.Image = image_PB1.Bitmap;
-            button1.PerformClick();
-            button5.PerformClick();
-            button2.PerformClick();
+            picture_ori.Image = image_PB1.Bitmap;
+            button_cameraJPG.PerformClick();
+            button_threshold.PerformClick();
+            button_detect.PerformClick();
             if (delay_counter < 3)
             {
                 delay = true;
@@ -126,20 +126,20 @@ namespace Ladowisko
             ListView_Data.Clear();
             listView2.Clear();
             //zmienne pomocnicze
-            int blockSize = (int)numericUpDown1.Value;
-            int param1 = (int)numericUpDown2.Value;
+            int blockSize = (int)numericUpDown_blockSize.Value;
+            int param1 = (int)numericUpDown_param1.Value;
             //kopiowanie image_PB1 do image_temp2
             image_PB1.CopyTo(image_temp2);
             //konwersja z BGR na Gray
             image_temp1 = image_PB1.Convert<Gray, byte>();
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
             //progowanie adaptacyjne
             CvInvoke.AdaptiveThreshold(image_temp1, image_temp1, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
             //odwrocenie kolorow
             image_temp1._Not();
-            pictureBox5.Image = image_temp1.Bitmap;
-            pictureBox4.Image = image_temp2.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
+            picture_post_det.Image = image_temp2.Bitmap;
         }
 
         private void FindRect()
@@ -282,8 +282,8 @@ namespace Ladowisko
                 }
             }
 
-            pictureBox4.Image = image_temp1_bgr.Bitmap;
-            pictureBox2.Image = image_temp2.Bitmap;
+            picture_post_det.Image = image_temp1_bgr.Bitmap;
+            picture_ori_det.Image = image_temp2.Bitmap;
         }
         #endregion
 
@@ -332,7 +332,7 @@ namespace Ladowisko
                 }
             }
             image_temp1.Data = temp2;
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
         }
 
         private void lowPassFilter()
@@ -379,14 +379,14 @@ namespace Ladowisko
                 }
             }
             image_temp1.Data = temp2;
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
         }
 
         #endregion
 
         #region events
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void picture_ori_Click(object sender, EventArgs e)
         {
             listView1.Clear();
             MouseEventArgs me = e as MouseEventArgs;
@@ -399,7 +399,7 @@ namespace Ladowisko
             listView1.Items.Add("Pozycja = " + me.X.ToString() + ", " + me.Y.ToString() + "\n");
         }
 
-        private void pictureBox5_Click(object sender, EventArgs e)
+        private void picture_post_Click(object sender, EventArgs e)
         {
             MouseEventArgs me = e as MouseEventArgs;
             byte[,,] temp = image_PB1.Data;
@@ -410,51 +410,49 @@ namespace Ladowisko
             listView1.Items.Add("Kolor RGB Przetworzony = " + R.ToString() + ", " + G.ToString() + ", " + B.ToString() + "\n");
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button_cameraJPG_Click(object sender, EventArgs e)
         {
             Mat temp = new Mat();
             camera.Read(temp);
-            CvInvoke.Resize(temp, temp, pictureBox1.Size);
+            CvInvoke.Resize(temp, temp, picture_ori.Size);
             image_PB1 = temp.ToImage<Bgr, byte>();
-            pictureBox1.Image = image_PB1.Bitmap;
+            picture_ori.Image = image_PB1.Bitmap;
         }
 
-
-
-        private void button3_Click(object sender, EventArgs e)
+        private void button_cameraMovie_Click(object sender, EventArgs e)
         {
             movie = !movie;
             timer1.Enabled = movie;
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void button_threshold_Click(object sender, EventArgs e)
         {
             Kolorki();
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void button_lowPass_Click(object sender, EventArgs e)
         {
             lowPassFilter();
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void button_highPass_Click(object sender, EventArgs e)
         {
             highPassFilter();
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void button_erode_Click(object sender, EventArgs e)
         {
             image_temp1.Erode(1);
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void button_dilate_Click(object sender, EventArgs e)
         {
             image_temp1.Dilate(1);
-            pictureBox5.Image = image_temp1.Bitmap;
+            picture_post.Image = image_temp1.Bitmap;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button_detect_Click(object sender, EventArgs e)
         {
             FindRect();
         }
