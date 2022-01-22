@@ -123,7 +123,7 @@ namespace Ladowisko
         private void Kolorki()
         {
             // czyszczenie list
-            ListView_Data.Clear();
+            listView_pos.Clear();
             listView2.Clear();
             //zmienne pomocnicze
             int blockSize = (int)numericUpDown_blockSize.Value;
@@ -177,7 +177,6 @@ namespace Ladowisko
                             area_temporary = area;
                             matches++;
                             newmax = true;
-                            listView1.Items.Add("One match");
                         }
                         else
                         {
@@ -193,7 +192,6 @@ namespace Ladowisko
                             matches = 0;
                             newmax = false;
                         }
-                        listView1.Items.Add("Two matches");
                         break;
                     //dla dwóch dopasowań sprawdzamy, czy kontur po aproksymacji ma więcej niż 4 punkty (jest na przykład 5kątem) - może to być przybliżony okrąg.
                     case 2:
@@ -203,7 +201,6 @@ namespace Ladowisko
                             matches = 0;
                             newmax = false;
                         }
-                        listView1.Items.Add("Three matches");
                         break;
                     //dla trzech dopasowań jw.
                     case 3:
@@ -223,7 +220,6 @@ namespace Ladowisko
                             newmax = false;
                             delay_counter = 0;
                             rectContour_max = rectContour[i - 4];
-                            listView1.Items.Add("Match!");
                         }
                         else
                         {
@@ -248,7 +244,7 @@ namespace Ladowisko
                 CvInvoke.DrawContours(image_temp2, rectContour_max, 0, new MCvScalar(0, 0, 255));
                 CvInvoke.Circle(image_temp1_bgr, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
                 CvInvoke.Circle(image_temp2, new Point(x, y), 2, new MCvScalar(0, 255, 255), 2);
-                ListView_Data.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - x) + ", " + ((int)desired_image_size.Height / 2 - y) + "\n");
+                listView_pos.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - x) + ", " + ((int)desired_image_size.Height / 2 - y) + "\n");
             }
             //w przypadku gdy nie znaleziono obiektu, sprawdzamy czy w ciągu ostatnich 3 klatek obrazu ten obiekt był wykryty - jeżeli tak to podajemy jego współrzędne.
             catch (Exception ex)
@@ -263,7 +259,7 @@ namespace Ladowisko
                             CvInvoke.DrawContours(image_temp2, rectContour, maxidx - 4, new MCvScalar(0, 0, 255));
                             CvInvoke.Circle(image_temp1_bgr, new Point(prev_x, prev_y), 2, new MCvScalar(0, 255, 255), 2);
                             CvInvoke.Circle(image_temp2, new Point(prev_x, prev_y), 2, new MCvScalar(0, 255, 255), 2);
-                            ListView_Data.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - prev_x) + ", " + ((int)desired_image_size.Height / 2 - prev_y) + "\n");
+                            listView_pos.Items.Add("Pozycja względem środka obrazu = " + ((int)desired_image_size.Width / 2 - prev_x) + ", " + ((int)desired_image_size.Height / 2 - prev_y) + "\n");
                         }
                         catch (Exception ex2)
                         {
@@ -278,7 +274,7 @@ namespace Ladowisko
                 {
                     CvInvoke.PutText(image_temp1_bgr, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
                     CvInvoke.PutText(image_temp2, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
-                    ListView_Data.Items.Add("Brak wzorca");
+                    listView_pos.Items.Add("Brak wzorca");
                 }
             }
 

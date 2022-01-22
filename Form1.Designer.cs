@@ -38,7 +38,7 @@
             this.button_detect = new System.Windows.Forms.Button();
             this.picture_post_det = new System.Windows.Forms.PictureBox();
             this.picture_post = new System.Windows.Forms.PictureBox();
-            this.ListView_Data = new System.Windows.Forms.ListView();
+            this.listView_pos = new System.Windows.Forms.ListView();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button_cameraJPG = new System.Windows.Forms.Button();
             this.button_cameraMovie = new System.Windows.Forms.Button();
@@ -60,8 +60,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.picture_sur = new System.Windows.Forms.PictureBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.picture_sur = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori_det)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_post_det)).BeginInit();
@@ -162,15 +163,15 @@
             this.picture_post.TabStop = false;
             this.picture_post.Click += new System.EventHandler(this.picture_post_Click);
             // 
-            // ListView_Data
+            // listView_pos
             // 
-            this.ListView_Data.HideSelection = false;
-            this.ListView_Data.Location = new System.Drawing.Point(664, 143);
-            this.ListView_Data.Name = "ListView_Data";
-            this.ListView_Data.Size = new System.Drawing.Size(215, 97);
-            this.ListView_Data.TabIndex = 62;
-            this.ListView_Data.UseCompatibleStateImageBehavior = false;
-            this.ListView_Data.View = System.Windows.Forms.View.List;
+            this.listView_pos.HideSelection = false;
+            this.listView_pos.Location = new System.Drawing.Point(664, 146);
+            this.listView_pos.Name = "listView_pos";
+            this.listView_pos.Size = new System.Drawing.Size(215, 138);
+            this.listView_pos.TabIndex = 62;
+            this.listView_pos.UseCompatibleStateImageBehavior = false;
+            this.listView_pos.View = System.Windows.Forms.View.List;
             // 
             // timer1
             // 
@@ -199,7 +200,7 @@
             // listView1
             // 
             this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(664, 411);
+            this.listView1.Location = new System.Drawing.Point(664, 393);
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(215, 97);
             this.listView1.TabIndex = 72;
@@ -209,7 +210,7 @@
             // listView2
             // 
             this.listView2.HideSelection = false;
-            this.listView2.Location = new System.Drawing.Point(664, 280);
+            this.listView2.Location = new System.Drawing.Point(664, 290);
             this.listView2.Name = "listView2";
             this.listView2.Size = new System.Drawing.Size(215, 97);
             this.listView2.TabIndex = 73;
@@ -395,6 +396,7 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.picture_sur);
             this.panel1.Controls.Add(this.label3);
@@ -414,12 +416,30 @@
             this.panel1.Controls.Add(this.groupBox2);
             this.panel1.Controls.Add(this.picture_ori);
             this.panel1.Controls.Add(this.groupBox3);
-            this.panel1.Controls.Add(this.ListView_Data);
+            this.panel1.Controls.Add(this.listView_pos);
             this.panel1.Controls.Add(this.button_cameraMovie);
             this.panel1.Location = new System.Drawing.Point(15, 12);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1877, 1059);
             this.panel1.TabIndex = 87;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(661, 130);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(132, 13);
+            this.label6.TabIndex = 88;
+            this.label6.Text = "Pozycja względem środka:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 940);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(165, 13);
+            this.label5.TabIndex = 87;
+            this.label5.Text = "Wycinek obrazu dookoła objektu";
             // 
             // picture_sur
             // 
@@ -430,15 +450,6 @@
             this.picture_sur.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picture_sur.TabIndex = 86;
             this.picture_sur.TabStop = false;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 940);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(165, 13);
-            this.label5.TabIndex = 87;
-            this.label5.Text = "Wycinek obrazu dookoła objektu";
             // 
             // Form1
             // 
@@ -475,7 +486,7 @@
         private System.Windows.Forms.Button button_detect;
         private System.Windows.Forms.PictureBox picture_post_det;
         private System.Windows.Forms.PictureBox picture_post;
-        private System.Windows.Forms.ListView ListView_Data;
+        private System.Windows.Forms.ListView listView_pos;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button button_cameraJPG;
         private System.Windows.Forms.Button button_cameraMovie;
@@ -499,6 +510,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.PictureBox picture_sur;
+        private System.Windows.Forms.Label label6;
     }
 }
 
