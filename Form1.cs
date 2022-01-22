@@ -14,8 +14,10 @@ namespace Ladowisko
         Image<Gray, byte> image_temp1;
         VideoCapture camera;
         VectorOfVectorOfPoint rectContour = new VectorOfVectorOfPoint();
+        VectorOfVectorOfPoint rectContour_sur = new VectorOfVectorOfPoint();
         VectorOfPoint rectContour_max = new VectorOfPoint();
         Mat rect_mat = new Mat();
+        Mat rect_mat_sur = new Mat();
         bool delay;
         int delay_counter;
         int prev_x, prev_y;
@@ -360,12 +362,10 @@ namespace Ladowisko
 
                         //----------------------------
                         Image<Bgr, byte> image_sur = new Image<Bgr, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
-                        Image<Bgr, byte> image_post_sur = new Image<Bgr, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
+                        Image<Gray, byte> image_post_sur = new Image<Gray, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
                         byte[,,] surr = image_sur.Data;
-                        byte[,,] post_surr = image_post_sur.Data;
                         int loop_increment_x = 0;
                         int loop_increment_y;
-                        byte[,,] temp_post = image_post.Data;
                         byte[,,] temp_bgr = image_PB1.Data;
                         //----------------------------
 
@@ -379,19 +379,28 @@ namespace Ladowisko
                                 surr[loop_increment_y, loop_increment_x, 0] = temp_bgr[y_loop, x_loop, 0];
                                 surr[loop_increment_y, loop_increment_x, 1] = temp_bgr[y_loop, x_loop, 1];
                                 surr[loop_increment_y, loop_increment_x, 2] = temp_bgr[y_loop, x_loop, 2];
-                                post_surr[loop_increment_y, loop_increment_x, 0] = temp_post[y_loop, x_loop, 0];
-                                post_surr[loop_increment_y, loop_increment_x, 1] = temp_post[y_loop, x_loop, 1];
-                                post_surr[loop_increment_y, loop_increment_x, 2] = temp_post[y_loop, x_loop, 2];
                                 loop_increment_y++;
                             }
                             loop_increment_x++;
                         }
-                        //wyświetlenie
 
+                        int blockSize = (int)numericUpDown2.Value;
+                        int param1 = (int)numericUpDown1.Value;
+                        image_post_sur = image_sur.Convert<Gray, byte>();
+                        CvInvoke.AdaptiveThreshold(image_post_sur, image_post_sur, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
+                        image_post_sur._Not();
+                        CvInvoke.FindContours(image_temp1, rectContour, rect_mat, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
+                        Image<Bgr, byte> image_post_sur_bgr = image_post_sur.Convert<Bgr, byte>();
+                        CvInvoke.FindContours(image_temp1, rectContour_sur, rect_mat_sur, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
+                        for (int i = 0; i < rectContour.Size; i++)
+                        {
+                            CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, i, new MCvScalar(0, 0, 255));
+                        }
+
+                        //wyświetlenie
                         image_sur.Data = surr;
-                        image_post_sur.Data = post_surr;
                         picture_sur.Image = image_sur.Bitmap;
-                        picture_post_sur.Image = image_post_sur.Bitmap;
+                        picture_post_sur.Image = image_post_sur_bgr.Bitmap;
                         prev_surr = surr;
                     }
                     // jeżeli nie ma części wzorca przy krawędziach ekranu -  wyświetlamy informację o braku wzorca na obrazie.

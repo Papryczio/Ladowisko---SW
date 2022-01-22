@@ -66,6 +66,11 @@
             this.label5 = new System.Windows.Forms.Label();
             this.picture_sur = new System.Windows.Forms.PictureBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori_det)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_ori)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_post_det)).BeginInit();
@@ -77,6 +82,9 @@
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picture_post_sur)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_sur)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             this.SuspendLayout();
             // 
             // picture_ori_det
@@ -396,6 +404,7 @@
             // 
             this.panel1.AutoScroll = true;
             this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.Controls.Add(this.groupBox1);
             this.panel1.Controls.Add(this.label9);
             this.panel1.Controls.Add(this.picture_post_sur);
             this.panel1.Controls.Add(this.listView3);
@@ -480,9 +489,79 @@
             this.label9.AutoSize = true;
             this.label9.Location = new System.Drawing.Point(897, 940);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(295, 13);
+            this.label9.Size = new System.Drawing.Size(288, 13);
             this.label9.TabIndex = 92;
-            this.label9.Text = "Wycinek obrazu dookoła objektu po binaryzacji adaptacyjnej";
+            this.label9.Text = "Wycinek obrazu poza obszarem po binaryzacji adaptacyjnej";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.numericUpDown1);
+            this.groupBox1.Controls.Add(this.numericUpDown2);
+            this.groupBox1.Location = new System.Drawing.Point(652, 940);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(227, 88);
+            this.groupBox1.TabIndex = 93;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Threshold";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(17, 51);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(42, 13);
+            this.label10.TabIndex = 79;
+            this.label10.Text = "param1";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(17, 22);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(57, 13);
+            this.label11.TabIndex = 78;
+            this.label11.Text = "Block Size";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(75, 51);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDown1.TabIndex = 77;
+            this.numericUpDown1.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Increment = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Location = new System.Drawing.Point(75, 22);
+            this.numericUpDown2.Maximum = new decimal(new int[] {
+            501,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDown2.TabIndex = 76;
+            this.numericUpDown2.Value = new decimal(new int[] {
+            81,
+            0,
+            0,
+            0});
             // 
             // Form1
             // 
@@ -505,6 +584,10 @@
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picture_post_sur)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picture_sur)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -548,6 +631,11 @@
         private System.Windows.Forms.ListView listView3;
         private System.Windows.Forms.PictureBox picture_post_sur;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
     }
 }
 
