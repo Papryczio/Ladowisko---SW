@@ -21,7 +21,7 @@ namespace Ladowisko
         bool delay;
         int delay_counter;
         int prev_x, prev_y;
-        int prev_min_x, prev_min_y, prev_max_x, prev_max_y;
+        int prev_approx_min_x_1, prev_approx_min_y_1, prev_approx_max_x_1, prev_approx_max_y_1;
         int maxidx;
         double tolerance;
         byte[,,] prev_surr;
@@ -39,10 +39,10 @@ namespace Ladowisko
             delay_counter = 0;
             prev_x = -1;
             prev_y = -1;
-            prev_min_x = -1;
-            prev_min_y = -1;
-            prev_max_x = -1;
-            prev_max_y = -1;
+            prev_approx_min_x_1 = -1;
+            prev_approx_min_y_1 = -1;
+            prev_approx_max_x_1 = -1;
+            prev_approx_max_y_1 = -1;
             maxidx = -1;
             //---
             tolerance = 0.1;
@@ -273,42 +273,42 @@ namespace Ladowisko
                     //ZOOM NA OTOCZENIE LĄDOWISKA
                     byte[,,] temp_bgr = image_PB1.Data;
 
-                    int max_y = -1, max_x = -1;
-                    int min_y = 2000, min_x = 2000;
+                    int approx_max_y_1 = -1, approx_max_x_1 = -1;
+                    int approx_min_y_1 = 2000, approx_min_x_1 = 2000;
 
                     //poszukiwanie minimalnych i maksymalnych wartości współrzędnych x i y
                     for (int i = 0; i < rectContour[maxidx - 4].Size; i++)
                     {
-                        if (rectContour[maxidx - 4][i].X < min_x) min_x = rectContour[maxidx - 4][i].X;
-                        if (rectContour[maxidx - 4][i].X > max_x) max_x = rectContour[maxidx - 4][i].X;
-                        if (rectContour[maxidx - 4][i].Y < min_y) min_y = rectContour[maxidx - 4][i].Y;
-                        if (rectContour[maxidx - 4][i].Y > max_y) max_y = rectContour[maxidx - 4][i].Y;
+                        if (rectContour[maxidx - 4][i].X < approx_min_x_1) approx_min_x_1 = rectContour[maxidx - 4][i].X;
+                        if (rectContour[maxidx - 4][i].X > approx_max_x_1) approx_max_x_1 = rectContour[maxidx - 4][i].X;
+                        if (rectContour[maxidx - 4][i].Y < approx_min_y_1) approx_min_y_1 = rectContour[maxidx - 4][i].Y;
+                        if (rectContour[maxidx - 4][i].Y > approx_max_y_1) approx_max_y_1 = rectContour[maxidx - 4][i].Y;
                     }
                     // rozszerzenie ich o współczynnik oparty na obwodzie pomnożonym przez zmienną
-                    prev_min_x = min_x = min_x - (int)(tolerance * perimeter_max);
-                    prev_min_y = min_y = min_y - (int)(tolerance * perimeter_max);
-                    prev_max_x = max_x = max_x + (int)(tolerance * perimeter_max);
-                    prev_max_y = max_y = max_y + (int)(tolerance * perimeter_max);
+                    prev_approx_min_x_1 = approx_min_x_1 = approx_min_x_1 - (int)(tolerance * perimeter_max);
+                    prev_approx_min_y_1 = approx_min_y_1 = approx_min_y_1 - (int)(tolerance * perimeter_max);
+                    prev_approx_max_x_1 = approx_max_x_1 = approx_max_x_1 + (int)(tolerance * perimeter_max);
+                    prev_approx_max_y_1 = approx_max_y_1 = approx_max_y_1 + (int)(tolerance * perimeter_max);
 
                     // uwzględnienie rozmiaru obrazu
-                    if (min_x - tolerance * perimeter_max < 0) min_x = 0;
-                    if (max_x + tolerance * perimeter_max > desired_image_size.Width) max_x = desired_image_size.Width;
-                    if (min_y - tolerance * perimeter_max < 0) min_y = 0;
-                    if (max_y + tolerance * perimeter_max > desired_image_size.Height) max_y = desired_image_size.Height;
+                    if (approx_min_x_1 - tolerance * perimeter_max < 0) approx_min_x_1 = 0;
+                    if (approx_max_x_1 + tolerance * perimeter_max > desired_image_size.Width) approx_max_x_1 = desired_image_size.Width;
+                    if (approx_min_y_1 - tolerance * perimeter_max < 0) approx_min_y_1 = 0;
+                    if (approx_max_y_1 + tolerance * perimeter_max > desired_image_size.Height) approx_max_y_1 = desired_image_size.Height;
 
                     //----------------------------
-                    Image<Bgr, byte> image_sur = new Image<Bgr, byte>(max_x - min_x, max_y - min_y);
-                    Image<Bgr, byte> image_post_sur = new Image<Bgr, byte>(max_x - min_x, max_y - min_y);
+                    Image<Bgr, byte> image_sur = new Image<Bgr, byte>(approx_max_x_1 - approx_min_x_1, approx_max_y_1 - approx_min_y_1);
+                    Image<Bgr, byte> image_post_sur = new Image<Bgr, byte>(approx_max_x_1 - approx_min_x_1, approx_max_y_1 - approx_min_y_1);
                     byte[,,] surr = image_sur.Data;
                     int loop_increment_x = 0;
                     int loop_increment_y;
                     //----------------------------
 
                     //przepisywanie bitów z obrazu do nowych tablic.
-                    for (int x_loop = min_x; x_loop < max_x; x_loop++)
+                    for (int x_loop = approx_min_x_1; x_loop < approx_max_x_1; x_loop++)
                     {
                         loop_increment_y = 0;
-                        for (int y_loop = min_y; y_loop < max_y; y_loop++)
+                        for (int y_loop = approx_min_y_1; y_loop < approx_max_y_1; y_loop++)
                         {
                             //Console.WriteLine("x " + loop_increment_x + " y " + loop_increment_y);
                             surr[loop_increment_y, loop_increment_x, 0] = temp_bgr[y_loop, x_loop, 0];
@@ -353,16 +353,16 @@ namespace Ladowisko
                 //jeżeli tego obiektu nie było w ciągu ostatnich 3 klatek - poszukujemy części wzorca przy krawędziach obrazu
                 else
                 {
-                    if (prev_min_x != -1 && prev_min_y != -1 && prev_max_x != -1 && prev_max_y != -1)
+                    if (prev_approx_min_x_1 != -1 && prev_approx_min_y_1 != -1 && prev_approx_max_x_1 != -1 && prev_approx_max_y_1 != -1)
                     {
-                        if (prev_min_x <= 2 * tolerance * perimeter_max) prev_min_x = 0;
-                        if (prev_min_y <= 2 * tolerance * perimeter_max) prev_min_y = 0;
-                        if (prev_max_x >= (desired_image_size.Width - 2 * tolerance * perimeter_max)) prev_max_x = desired_image_size.Width;
-                        if (prev_max_y >= (desired_image_size.Height - 2 * tolerance * perimeter_max)) prev_max_y = desired_image_size.Height;
+                        if (prev_approx_min_x_1 <= 2 * tolerance * perimeter_max) prev_approx_min_x_1 = 0;
+                        if (prev_approx_min_y_1 <= 2 * tolerance * perimeter_max) prev_approx_min_y_1 = 0;
+                        if (prev_approx_max_x_1 >= (desired_image_size.Width - 2 * tolerance * perimeter_max)) prev_approx_max_x_1 = desired_image_size.Width;
+                        if (prev_approx_max_y_1 >= (desired_image_size.Height - 2 * tolerance * perimeter_max)) prev_approx_max_y_1 = desired_image_size.Height;
 
                         //----------------------------
-                        Image<Bgr, byte> image_sur = new Image<Bgr, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
-                        Image<Gray, byte> image_post_sur = new Image<Gray, byte>(prev_max_x - prev_min_x, prev_max_y - prev_min_y);
+                        Image<Bgr, byte> image_sur = new Image<Bgr, byte>(prev_approx_max_x_1 - prev_approx_min_x_1, prev_approx_max_y_1 - prev_approx_min_y_1);
+                        Image<Gray, byte> image_post_sur = new Image<Gray, byte>(prev_approx_max_x_1 - prev_approx_min_x_1, prev_approx_max_y_1 - prev_approx_min_y_1);
                         byte[,,] surr = image_sur.Data;
                         int loop_increment_x = 0;
                         int loop_increment_y;
@@ -370,10 +370,10 @@ namespace Ladowisko
                         //----------------------------
 
                         //przepisywanie bitów z obrazu do nowych tablic.
-                        for (int x_loop = prev_min_x; x_loop < prev_max_x; x_loop++)
+                        for (int x_loop = prev_approx_min_x_1; x_loop < prev_approx_max_x_1; x_loop++)
                         {
                             loop_increment_y = 0;
-                            for (int y_loop = prev_min_y; y_loop < prev_max_y; y_loop++)
+                            for (int y_loop = prev_approx_min_y_1; y_loop < prev_approx_max_y_1; y_loop++)
                             {
                                 //Console.WriteLine("x " + loop_increment_x + " y " + loop_increment_y);
                                 surr[loop_increment_y, loop_increment_x, 0] = temp_bgr[y_loop, x_loop, 0];
@@ -383,25 +383,124 @@ namespace Ladowisko
                             }
                             loop_increment_x++;
                         }
-
+                        //nowe numericupdown na threshold wycinka
+                        int match_sur = 0;
+                        int maxidx_sur = -1;
                         int blockSize = (int)numericUpDown2.Value;
                         int param1 = (int)numericUpDown1.Value;
                         image_post_sur = image_sur.Convert<Gray, byte>();
                         CvInvoke.AdaptiveThreshold(image_post_sur, image_post_sur, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
                         image_post_sur._Not();
-                        CvInvoke.FindContours(image_temp1, rectContour, rect_mat, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
-                        Image<Bgr, byte> image_post_sur_bgr = image_post_sur.Convert<Bgr, byte>();
-                        CvInvoke.FindContours(image_temp1, rectContour_sur, rect_mat_sur, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
-                        for (int i = 0; i < rectContour.Size; i++)
-                        {
-                            CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, i, new MCvScalar(0, 0, 255));
-                        }
 
-                        //wyświetlenie
-                        image_sur.Data = surr;
-                        picture_sur.Image = image_sur.Bitmap;
-                        picture_post_sur.Image = image_post_sur_bgr.Bitmap;
-                        prev_surr = surr;
+                        //szukanie konturów na wycinku
+                        Image<Bgr, byte> image_post_sur_bgr = image_post_sur.Convert<Bgr, byte>();
+                        CvInvoke.FindContours(image_post_sur, rectContour_sur, rect_mat_sur, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
+                        for (int i = 0; i < rectContour_sur.Size; i++)
+                        {
+                            if (i != maxidx_sur)
+                            {
+                                //obwód
+                                double perimeter_sur = CvInvoke.ArcLength(rectContour_sur[i], true);
+                                VectorOfPoint approx_sur = new VectorOfPoint();
+                                int approx_max_x_0 = 0, approx_max_y_0 = 0, approx_min_x_0 = desired_image_size.Width, approx_min_y_0 = desired_image_size.Height;
+                                int approx_min_y_1 = desired_image_size.Height, approx_min_x_1 = desired_image_size.Width, approx_max_x_1 = 0, approx_max_y_1 = 0;
+                                int approx_min_y_2 = desired_image_size.Height, approx_min_x_2 = desired_image_size.Width, approx_max_x_2 = 0, approx_max_y_2 = 0;
+                                //aproksymacja
+                                CvInvoke.ApproxPolyDP(rectContour_sur[i], approx_sur, 0.01 * perimeter_sur, true);
+                                //pole
+                                double area_sur = CvInvoke.ContourArea(rectContour_sur[i]);
+
+                                //dopasowanie wzorca
+                                switch (match_sur)
+                                {
+                                    // zerowy wzorzec to 
+                                    case 0:
+                                        if (approx_sur.Size > 7 && approx_sur.Size < 10 && match_sur == 0 && area_sur > 500 && area_sur < 4000)
+                                        {
+                                            listView_sur.Clear();
+                                            match_sur++;
+                                            maxidx_sur = i;
+                                            for (int j = 0; j < approx_sur.Size; j++)
+                                            {
+                                                if (approx_sur[j].X < approx_min_x_0) approx_min_x_0 = approx_sur[j].X;
+                                                if (approx_sur[j].X > approx_max_x_0) approx_max_x_0 = approx_sur[j].X;
+                                                if (approx_sur[j].Y < approx_min_y_0) approx_min_y_0 = approx_sur[j].Y;
+                                                if (approx_sur[j].Y > approx_max_y_0) approx_max_y_0 = approx_sur[j].Y;
+                                            }
+
+                                            CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, i, new MCvScalar(0, 0, 255));
+                                            listView_sur.Items.Add("Area = " + area_sur + "\n");
+                                            listView_sur.Items.Add("Perimeter = " + perimeter_sur + "\n");
+                                            i = 0;
+                                        }
+                                        else
+                                        {
+                                            match_sur = 0;
+                                        }
+                                        break;
+                                    case 1:
+                                        for (int j = 0; j < approx_sur.Size; j++)
+                                        {
+                                            if (approx_sur[j].X < approx_min_x_1) approx_min_x_1 = approx_sur[j].X;
+                                            if (approx_sur[j].X > approx_max_x_1) approx_max_x_1 = approx_sur[j].X;
+                                            if (approx_sur[j].Y < approx_min_y_1) approx_min_y_1 = approx_sur[j].Y;
+                                            if (approx_sur[j].Y > approx_max_y_1) approx_max_y_1 = approx_sur[j].Y;
+                                        }
+                                        
+                                        if (approx_min_x_1 >= approx_min_x_0 && approx_min_y_1 >= approx_min_y_0 && approx_max_x_1 <= approx_max_x_0 && approx_max_y_1 <= approx_max_y_0 && approx_sur.Size > 5)
+                                        {
+                                            match_sur++;
+                                            i = 0;
+                                        }
+                                        //else
+                                        {
+                                       //     match_sur = 0;
+                                       //     maxidx_sur = -1;
+                                       //     i = 0;
+                                        }
+                                        break;
+                                        
+                                    case 2:
+                                        for (int j = 0; j < approx_sur.Size; j++)
+                                        {
+                                            if (approx_sur[j].X < approx_min_x_2) approx_min_x_2 = approx_sur[j].X;
+                                            if (approx_sur[j].X > approx_max_x_2) approx_max_x_2 = approx_sur[j].X;
+                                            if (approx_sur[j].Y < approx_min_y_2) approx_min_y_2 = approx_sur[j].Y;
+                                            if (approx_sur[j].Y > approx_max_y_2) approx_max_y_2 = approx_sur[j].Y;
+                                        }
+                                        if (approx_min_x_2 >= approx_min_x_1 && approx_min_y_2 >= approx_min_y_1 && approx_max_x_2 <= approx_max_x_1 && approx_max_y_2 <= approx_max_y_1 && approx_sur.Size > 3)
+                                        {
+                                            match_sur++;
+                                        }
+                                        break;
+                                        
+                                }
+                                
+                                if (match_sur == 2 && maxidx_sur != -1)
+                                {
+                                    //rysowanie konturu i punktów aproksymacji
+                                    CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
+                                    CvInvoke.PutText(image_post_sur_bgr, "1", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                    //for (int j = 0; j < approx_sur.Size; j++)
+                                    //{
+                                    //     CvInvoke.Circle(image_post_sur_bgr, new Point(approx_sur[j].X, approx_sur[j].Y), 2, new MCvScalar(255, 0, 0), 2);
+                                    //}
+                                }
+                                else if(match_sur == 3 && maxidx_sur != -1)
+                                {
+                                    CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
+                                    CvInvoke.PutText(image_post_sur_bgr, "2", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                }
+                                
+                            }
+
+
+                            //wyświetlenie
+                            image_sur.Data = surr;
+                            picture_sur.Image = image_sur.Bitmap;
+                            picture_post_sur.Image = image_post_sur_bgr.Bitmap;
+                            prev_surr = surr;
+                        }
                     }
                     // jeżeli nie ma części wzorca przy krawędziach ekranu -  wyświetlamy informację o braku wzorca na obrazie.
                     else
