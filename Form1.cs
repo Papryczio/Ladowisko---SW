@@ -27,6 +27,9 @@ namespace Ladowisko
         int maxidx;
         double tolerance;
         byte[,,] prev_surr;
+        double perimeter;
+        double area;
+        String cwiartka;
 
         public Form1()
         {
@@ -48,6 +51,8 @@ namespace Ladowisko
             prev_approx_max_x_1 = -1;
             prev_approx_max_y_1 = -1;
             maxidx = -1;
+            area = -1;
+            perimeter = -1;
             //---
             tolerance = 0.06;
             //---
@@ -129,7 +134,7 @@ namespace Ladowisko
             {
                 delay = false;
             }
-            if (delay_counter_sur < 3)
+            if (delay_counter_sur < 5)
             {
                 delay_sur = true;
             }
@@ -167,7 +172,7 @@ namespace Ladowisko
 
         private void FindRect()
         {
-            // zmienne pomocnicze
+            #region zmienne pomocnicze
             int matches = 0;
             bool match = false;
             int x;
@@ -177,8 +182,9 @@ namespace Ladowisko
             double area_temporary = 0;
             double perimeter_temp = 0;
             bool newmax = false;
+            #endregion
 
-            //odnajdywanie konturów przy użyciu RetrType.Tree - kontur wewnątrz konturu przypisywany jako kolejna liczba całkowita
+            #region findContours
 
             CvInvoke.FindContours(image_temp1, rectContour, rect_mat, Emgu.CV.CvEnum.RetrType.Tree, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
             Image<Bgr, byte> image_temp1_bgr = image_temp1.Convert<Bgr, byte>();
@@ -186,13 +192,13 @@ namespace Ladowisko
             for (int i = 0; i < rectContour.Size; i++)
             {
                 //obwód
-                double perimeter = CvInvoke.ArcLength(rectContour[i], true);
+                perimeter = CvInvoke.ArcLength(rectContour[i], true);
                 VectorOfPoint approx = new VectorOfPoint();
                 //aproksymacja
                 CvInvoke.ApproxPolyDP(rectContour[i], approx, 0.01 * perimeter, true);
                 //pole
-                double area = CvInvoke.ContourArea(rectContour[i]);
-                //dla każdego konturu w zależności od obecnej ilości dopasowań do wzorca sprawdzamy inne warunki:
+                area = CvInvoke.ContourArea(rectContour[i]);
+                #region warunki_na_wzorzec
                 switch (matches)
                 {
                     //jeżeli nie ma dopasowań sprawdzamy, czy kontur jest czworobokiem, czy jego pole jest wieksze od 2500 pixeli, oraz czy na na obrazie nie znalezliśmy już większego
@@ -257,15 +263,19 @@ namespace Ladowisko
                         }
                         break;
                 }
+                #endregion
             }
             listView1.Clear();
             listView1.Items.Add("Area_max = " + area_max + "\n");
+
+            #endregion
 
             //sprawdzamy czy możemy dla naszego obiektu wyliczyć momenty (jeżeli będzie exception - znaczy to, że nie znaleziono żadnego obiektu)
             try
             {
                 if (match == true)
                 {
+                    #region momenty_i_zoom
                     //obliczenie momentów
                     var moments = CvInvoke.Moments(rectContour[maxidx - 2]);
                     //środek ciężkości
@@ -331,6 +341,7 @@ namespace Ladowisko
                     //wyświetlenie
                     image_sur.Data = surr;
                     picture_sur.Image = image_sur.Bitmap;
+                    #endregion
                 }
                 else
                 {
@@ -365,10 +376,27 @@ namespace Ladowisko
                 {
                     if (prev_approx_min_x_1 != -1 && prev_approx_min_y_1 != -1 && prev_approx_max_x_1 != -1 && prev_approx_max_y_1 != -1)
                     {
-                        if (prev_approx_min_x_1 <= 2 * tolerance * perimeter_max) prev_approx_min_x_1 = 0;
-                        if (prev_approx_min_y_1 <= 2 * tolerance * perimeter_max) prev_approx_min_y_1 = 0;
-                        if (prev_approx_max_x_1 >= (desired_image_size.Width - 2 * tolerance * perimeter_max)) prev_approx_max_x_1 = desired_image_size.Width;
-                        if (prev_approx_max_y_1 >= (desired_image_size.Height - 2 * tolerance * perimeter_max)) prev_approx_max_y_1 = desired_image_size.Height;
+                        // jeżeli obraz jest przy krawędziach
+                        if (prev_approx_min_x_1 <= 2 * tolerance * perimeter_max)
+                        {
+                            prev_approx_min_x_1 = 0;
+                            cwiartka = "Lewa krawędź";
+                        }
+                        if (prev_approx_min_y_1 <= 2 * tolerance * perimeter_max)
+                        {
+                            prev_approx_min_y_1 = 0;
+                            cwiartka = "Górna krawędź";
+                        }
+                        if (prev_approx_max_x_1 >= (desired_image_size.Width - 2 * tolerance * perimeter_max))
+                        {
+                            prev_approx_max_x_1 = desired_image_size.Width;
+                            cwiartka = "Prawa krawędź";
+                        }
+                        if (prev_approx_max_y_1 >= (desired_image_size.Height - 2 * tolerance * perimeter_max))
+                        {
+                            prev_approx_max_y_1 = desired_image_size.Height;
+                            cwiartka = "Dolna krawędź";
+                        }
 
                         //----------------------------
                         Image<Bgr, byte> image_sur = new Image<Bgr, byte>(prev_approx_max_x_1 - prev_approx_min_x_1, prev_approx_max_y_1 - prev_approx_min_y_1);
@@ -393,9 +421,9 @@ namespace Ladowisko
                             }
                             loop_increment_x++;
                         }
-                        //nowe numericupdown na threshold wycinka
+                        #region zmienne_lokalne
                         int matches_sur = 0;
-                        bool match_sur = false;
+                        
                         int maxidx_sur = -1;
                         int blockSize = (int)numericUpDown2.Value;
                         int param1 = (int)numericUpDown1.Value;
@@ -403,7 +431,12 @@ namespace Ladowisko
                         int approx_max_x_0 = 0, approx_max_y_0 = 0, approx_min_x_0 = desired_image_size.Width, approx_min_y_0 = desired_image_size.Height;
                         int approx_min_y_1 = desired_image_size.Height, approx_min_x_1 = desired_image_size.Width, approx_max_x_1 = 0, approx_max_y_1 = 0;
                         int approx_min_y_2 = desired_image_size.Height, approx_min_x_2 = desired_image_size.Width, approx_max_x_2 = 0, approx_max_y_2 = 0;
+                        double area_sur_max = 0;
+                        double perimeter_sur_max = 0;
+                        double area_sur_temp = 0;
+                        double perimeter_sur_temp = 0;
                         image_post_sur = image_sur.Convert<Gray, byte>();
+                        #endregion
                         CvInvoke.AdaptiveThreshold(image_post_sur, image_post_sur, 255, Emgu.CV.CvEnum.AdaptiveThresholdType.GaussianC, Emgu.CV.CvEnum.ThresholdType.Binary, blockSize, param1);
                         image_post_sur._Not();
 
@@ -414,24 +447,17 @@ namespace Ladowisko
                         {
                             if (i != maxidx_sur)
                             {
-                                //obwód
                                 double perimeter_sur = CvInvoke.ArcLength(rectContour_sur[i], true);
                                 VectorOfPoint approx_sur = new VectorOfPoint();
-                                //aproksymacja
                                 CvInvoke.ApproxPolyDP(rectContour_sur[i], approx_sur, 0.01 * perimeter_sur, true);
-                                //pole
                                 double area_sur = CvInvoke.ContourArea(rectContour_sur[i]);
+                                bool match_sur = false;
 
-                                for (int j = 0; j < approx_sur.Size; j++)
-                                {
-                                    CvInvoke.Circle(image_post_sur_bgr, new Point(approx_sur[j].X, approx_sur[j].Y), 2, new MCvScalar(255, 0, 0), 2);
-                                }
-
-                                //dopasowanie wzorca (musi spełnić 2 warunki, 3ci opcjonalny)
+                                #region warunki_na_wzorzec
                                 switch (matches_sur)
                                 {
                                     case 0:
-                                        if (approx_sur.Size > 5 && approx_sur.Size < 10 && area_sur > 250 && area_sur < 5000)
+                                        if (approx_sur.Size > 5 && approx_sur.Size < 10 && area_sur > 250 && area_sur < 7500)
                                         {
                                             listView_sur.Clear();
                                             matches_sur++;
@@ -444,8 +470,8 @@ namespace Ladowisko
                                                 if (approx_sur[j].Y > approx_max_y_0) approx_max_y_0 = approx_sur[j].Y;
                                             }
                                             Console.WriteLine("case 0");
-                                            listView_sur.Items.Add("Area = " + area_sur + "\n");
-                                            listView_sur.Items.Add("Perimeter = " + perimeter_sur + "\n");
+                                            area_sur_temp = area_sur;
+                                            perimeter_sur_temp = perimeter_sur;
                                             i = 0;
                                         }
                                         else
@@ -470,6 +496,10 @@ namespace Ladowisko
                                             i = 0;
                                             delay_counter_sur = 0;
                                             Console.WriteLine("case 1");
+                                            area_sur_max = area_sur_temp;
+                                            perimeter_sur_max = perimeter_sur_temp;
+                                            listView_sur.Items.Add("Area = " + area_sur_max + "\n");
+                                            listView_sur.Items.Add("Perimeter = " + perimeter_sur_max + "\n");
                                         }
                                         else
                                         {
@@ -494,25 +524,33 @@ namespace Ladowisko
                                         }
                                         break;
                                 }
+                                #endregion
                                 if (match_sur == true && maxidx_sur != -1)
                                 {
                                     //rysowanie konturu i punktów aproksymacji
+                                    CvInvoke.PutText(image_post_sur_bgr, "Match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
                                     CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
-                                    for (int j = 0; j < approx_sur.Size; j++)
-                                    {
-                                        CvInvoke.Circle(image_post_sur_bgr, new Point(approx_sur[j].X, approx_sur[j].Y), 2, new MCvScalar(255, 0, 0), 2);
-                                    }
+                                    listView_pos.Clear();
+                                    listView_pos.Items.Add("Wzorzec częściowo poza obrazem: " + cwiartka);
+                                    CvInvoke.PutText(image_sur, "Match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                    CvInvoke.DrawContours(image_sur, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
                                 }
                                 else
                                 {
                                     if(delay_sur == true && prev_maxidx != -1)
                                     {
+
+                                        CvInvoke.PutText(image_post_sur_bgr, "Match (delay) " + delay_counter_sur, new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
                                         CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, prev_maxidx, new MCvScalar(0, 0, 255));
+
+                                        CvInvoke.PutText(image_sur, "Match (delay) " + delay_counter_sur, new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                        CvInvoke.DrawContours(image_sur, rectContour_sur, prev_maxidx, new MCvScalar(0, 0, 255));
                                     }
                                     else
                                     {
                                         CvInvoke.PutText(image_temp1_bgr, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
                                         CvInvoke.PutText(image_temp2, "No match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                        listView_pos.Clear();
                                         listView_pos.Items.Add("Brak wzorca");
                                     }
                                 }
