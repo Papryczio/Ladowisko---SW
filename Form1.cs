@@ -528,11 +528,10 @@ namespace Ladowisko
                                 if (match_sur == true && maxidx_sur != -1)
                                 {
                                     //rysowanie konturu i punktów aproksymacji
-                                    CvInvoke.PutText(image_post_sur_bgr, "Match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+
                                     CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
                                     listView_pos.Clear();
                                     listView_pos.Items.Add("Wzorzec częściowo poza obrazem: " + cwiartka);
-                                    CvInvoke.PutText(image_sur, "Match", new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
                                     CvInvoke.DrawContours(image_sur, rectContour_sur, maxidx_sur, new MCvScalar(0, 0, 255));
                                 }
                                 else
@@ -540,10 +539,10 @@ namespace Ladowisko
                                     if(delay_sur == true && prev_maxidx != -1)
                                     {
 
-                                        CvInvoke.PutText(image_post_sur_bgr, "Match (delay) " + delay_counter_sur, new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                        
                                         CvInvoke.DrawContours(image_post_sur_bgr, rectContour_sur, prev_maxidx, new MCvScalar(0, 0, 255));
 
-                                        CvInvoke.PutText(image_sur, "Match (delay) " + delay_counter_sur, new Point(10, 10), Emgu.CV.CvEnum.FontFace.HersheySimplex, 0.5, new MCvScalar(0, 0, 255), 2);
+                                        
                                         CvInvoke.DrawContours(image_sur, rectContour_sur, prev_maxidx, new MCvScalar(0, 0, 255));
                                     }
                                     else

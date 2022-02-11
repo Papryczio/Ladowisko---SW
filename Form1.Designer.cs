@@ -157,7 +157,7 @@
             // picture_post_det
             // 
             this.picture_post_det.BackColor = System.Drawing.Color.Black;
-            this.picture_post_det.Location = new System.Drawing.Point(900, 547);
+            this.picture_post_det.Location = new System.Drawing.Point(924, 547);
             this.picture_post_det.Name = "picture_post_det";
             this.picture_post_det.Size = new System.Drawing.Size(640, 360);
             this.picture_post_det.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -167,7 +167,7 @@
             // picture_post
             // 
             this.picture_post.BackColor = System.Drawing.Color.Black;
-            this.picture_post.Location = new System.Drawing.Point(900, 130);
+            this.picture_post.Location = new System.Drawing.Point(924, 130);
             this.picture_post.Name = "picture_post";
             this.picture_post.Size = new System.Drawing.Size(640, 360);
             this.picture_post.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -180,7 +180,7 @@
             this.listView_pos.HideSelection = false;
             this.listView_pos.Location = new System.Drawing.Point(664, 146);
             this.listView_pos.Name = "listView_pos";
-            this.listView_pos.Size = new System.Drawing.Size(215, 138);
+            this.listView_pos.Size = new System.Drawing.Size(239, 138);
             this.listView_pos.TabIndex = 62;
             this.listView_pos.UseCompatibleStateImageBehavior = false;
             this.listView_pos.View = System.Windows.Forms.View.List;
@@ -214,7 +214,7 @@
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(664, 393);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(215, 97);
+            this.listView1.Size = new System.Drawing.Size(239, 97);
             this.listView1.TabIndex = 72;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.List;
@@ -224,7 +224,7 @@
             this.listView2.HideSelection = false;
             this.listView2.Location = new System.Drawing.Point(664, 290);
             this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(215, 97);
+            this.listView2.Size = new System.Drawing.Size(239, 97);
             this.listView2.TabIndex = 73;
             this.listView2.UseCompatibleStateImageBehavior = false;
             this.listView2.View = System.Windows.Forms.View.List;
@@ -376,7 +376,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(907, 114);
+            this.label2.Location = new System.Drawing.Point(921, 114);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(92, 13);
             this.label2.TabIndex = 83;
@@ -394,7 +394,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(907, 531);
+            this.label4.Location = new System.Drawing.Point(921, 531);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(206, 13);
             this.label4.TabIndex = 85;
@@ -509,7 +509,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(897, 940);
+            this.label9.Location = new System.Drawing.Point(921, 940);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(288, 13);
             this.label9.TabIndex = 92;
@@ -518,7 +518,7 @@
             // picture_post_sur
             // 
             this.picture_post_sur.BackColor = System.Drawing.Color.Black;
-            this.picture_post_sur.Location = new System.Drawing.Point(900, 956);
+            this.picture_post_sur.Location = new System.Drawing.Point(924, 956);
             this.picture_post_sur.Name = "picture_post_sur";
             this.picture_post_sur.Size = new System.Drawing.Size(640, 360);
             this.picture_post_sur.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
